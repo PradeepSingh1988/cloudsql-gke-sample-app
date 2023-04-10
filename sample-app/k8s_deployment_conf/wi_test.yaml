@@ -17,7 +17,7 @@ metadata:
 spec:
   serviceAccountName: "sample-app"
   containers:
-    - image: us-central1-docker.pkg.dev/pw-asm-gke-prj-1/sample/gcloud-sdk:latest
+    - image: gcr.io/google.com/cloudsdktool/google-cloud-cli
       name: workload-identity-test
       command: ["sleep", "infinity"]
 
