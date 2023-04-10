@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Index, schema
-from sqlalchemy.types import TEXT
+from sqlalchemy.types import CHAR
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 
 
@@ -50,9 +50,9 @@ class User(Base):
         schema.PrimaryKeyConstraint("phone", "email", name="user_pk"),
     )
 
-    name = Column(TEXT(64))
-    phone = Column(TEXT(16))
-    email = Column(TEXT(30))
+    name = Column(CHAR(30))
+    phone = Column(CHAR(16))
+    email = Column(CHAR(30))
 
     FIELDS = {
         "name": str,
