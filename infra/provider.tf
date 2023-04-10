@@ -12,7 +12,6 @@ provider "google" {
 }
 
 
-
 data "google_service_account_access_token" "default" {
   provider               = google.impersonate
   target_service_account = local.tf_sa

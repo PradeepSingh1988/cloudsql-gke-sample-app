@@ -24,7 +24,7 @@ class SqlEngineFacade:
             db_host = settings.db_host
             db_port = settings.db_port
             DATABASE_URL = engine.url.URL.create(
-                drivername="postgresql+psycopg2",
+                drivername="mysql+pymysql",
                 host=db_host,
                 port=db_port,
                 database=db_name,

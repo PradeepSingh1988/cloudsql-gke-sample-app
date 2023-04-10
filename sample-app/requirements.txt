@@ -3,5 +3,4 @@ fastapi-versioning
 uvicorn
 SQLAlchemy
 
-# avoids building from source, we should use psycopg2 in production
-psycopg2-binary
+PyMySQL

@@ -1,89 +1,52 @@
-
-
-resource "google_project_service" "cloud_sql_service" {
-  project                    = var.project_id
-  service                    = "sqladmin.googleapis.com"
-  disable_on_destroy         = true
-  disable_dependent_services = true
-}
-
-resource "google_project_service" "service_networking_api" {
-  project                    = var.project_id
-  service                    = "servicenetworking.googleapis.com"
-  disable_on_destroy         = true
-  disable_dependent_services = true
-}
-
-
-module "sql-db" {
-  source               = "GoogleCloudPlatform/sql-db/google//modules/postgresql"
-  name                 = "postgresql-ha-instance"
+module "mysql-db" {
+  source               = "GoogleCloudPlatform/sql-db/google//modules/safer_mysql"
+  name                 = "sample-app-mysql-db"
   random_instance_name = true
   project_id           = var.project_id
 
-  # Master Configuration
-  database_version    = "POSTGRES_14"
-  region              = var.region
-  tier                = "db-custom-1-3840"
-  zone                = var.master_instance_zone
-  availability_type   = "REGIONAL"
   deletion_protection = false
-  user_labels = {
-    environment = "dev"
-  }
 
-  ip_configuration = {
-    ipv4_enabled                                  = false
-    require_ssl                                   = true
-    private_network                               = data.google_compute_network.shared-vpc.self_link
-    allocated_ip_range                            = var.psc_address_name
-    authorized_networks                           = []
-    enable_private_path_for_google_cloud_services = true
-  }
-  database_flags = [
-    {
-      name  = "cloudsql.iam_authentication"
-      value = "on"
-    },
-  ]
+  database_version   = "MYSQL_8_0"
+  region             = var.region
+  zone               = var.master_instance_zone
+  tier               = "db-n1-standard-1"
+  assign_public_ip   = "false"
+  vpc_network        = data.google_compute_network.shared-vpc.self_link
+  allocated_ip_range = var.psc_address_name
+  database_flags = [{
+    name  = "cloudsql_iam_authentication"
+    value = "On"
+  }]
 
-  // Read replica configurations
-  read_replica_name_suffix = "-replica"
-  read_replicas = [
-    {
-      name              = "0"
-      zone              = var.replica_instance_zone
-      availability_type = "REGIONAL"
-      tier              = "db-custom-1-3840"
-      ip_configuration = {
-        ipv4_enabled                                  = false
-        require_ssl                                   = true
-        private_network                               = data.google_compute_network.shared-vpc.self_link
-        allocated_ip_range                            = var.psc_address_name
-        authorized_networks                           = []
-        enable_private_path_for_google_cloud_services = true
-      }
-      database_flags = [
-        {
-          name  = "cloudsql.iam_authentication"
-          value = "on"
-        },
-      ]
-      disk_autoresize       = null
-      disk_autoresize_limit = null
-      disk_size             = null
-      disk_type             = "PD_HDD"
-      user_labels           = { environment = "dev" }
-      encryption_key_name   = null
-    }
-  ]
+  # Because Cloud IAM acts as a primary authentication and authorization mechanism,
+  # we can consider MySQL usernames and passwords are a secondary access controls
+  # that can be used to further restrict access for reliability or safety purposes. 
+  # For example, removing the ability of modifying tables from production users 
+  # that don't need such a capability. The module, by default, creates users that:
+  # 1. only allow connections from host ~cloudsqlproxy to ensure that nobody can access 
+  #    data without connecting via the Cloud SQL Proxy.
+  # 2. have randomly generated passwords, which can be stored in configuration files. 
+  #    Such passwords can be considered as secure as API Keys rather than strong credentials for access.
+  # more details here: https://github.com/terraform-google-modules/terraform-google-sql-db/tree/master/modules/safer_mysql#define-mysql-users-and-passwords-on-your-instance
 
-  additional_databases = [
-    {
-      name      = "sample-app"
-      charset   = "UTF8"
-      collation = "en_US.UTF8"
-    },
-  ]
-  module_depends_on = [google_project_service.cloud_sql_service]
+  #   additional_users = [
+  #     {
+  #       name            = "sample-app"
+  #       password        = "PaSsWoRd"
+  #       host            = "localhost"
+  #       type            = "BUILT_IN"
+  #       random_password = false
+  #     },
+  #   ]
+}
+
+## Service account based authentication + DB login can be used by creating users
+## and then granting them permissions on table using GRANT statement
+## Please check https://cloud.google.com/sql/docs/mysql/add-manage-iam-users#grant-db-privileges
+
+resource "google_sql_user" "users" {
+  name     = module.my-app-workload-identity.gcp_service_account_email
+  instance = module.mysql-db.instance_name
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+  project  = var.project_id
 }
