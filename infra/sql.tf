@@ -18,6 +18,12 @@ module "mysql-db" {
     value = "On"
   }]
 
+  additional_databases = [{
+    name      = "sampleapp"
+    charset   = ""
+    collation = ""
+  }]
+
   # Because Cloud IAM acts as a primary authentication and authorization mechanism,
   # we can consider MySQL usernames and passwords are a secondary access controls
   # that can be used to further restrict access for reliability or safety purposes. 
@@ -44,8 +50,18 @@ module "mysql-db" {
 ## and then granting them permissions on table using GRANT statement
 ## Please check https://cloud.google.com/sql/docs/mysql/add-manage-iam-users#grant-db-privileges
 
+
+
 resource "google_sql_user" "users" {
   name     = module.my-app-workload-identity.gcp_service_account_email
+  instance = module.mysql-db.instance_name
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+  project  = var.project_id
+}
+
+
+resource "google_sql_user" "admins" {
+  name     = module.sql-admin-workload-identity.gcp_service_account_email
   instance = module.mysql-db.instance_name
   type     = "CLOUD_IAM_SERVICE_ACCOUNT"
   project  = var.project_id

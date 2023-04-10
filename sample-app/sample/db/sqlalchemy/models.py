@@ -50,9 +50,9 @@ class User(Base):
         schema.PrimaryKeyConstraint("phone", "email", name="user_pk"),
     )
 
-    name = Column(TEXT)
-    phone = Column(TEXT)
-    email = Column(TEXT)
+    name = Column(TEXT(64))
+    phone = Column(TEXT(16))
+    email = Column(TEXT(30))
 
     FIELDS = {
         "name": str,

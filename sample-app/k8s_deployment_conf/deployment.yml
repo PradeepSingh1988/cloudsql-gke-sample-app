@@ -23,14 +23,15 @@ spec:
             - name: DB_PORT
               value: "3306"
             - name: DB_NAME
-              value: "sample-app"
+              value: "sampleapp"
             - name: DB_USER
-              value: "sample-app@pw-asm-gke-prj-1.iam.gserviceaccount.com"
+              value: "sample-app"
         - name: cloud-sql-proxy
           image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
           args:
             - "--private-ip"
             - "--structured-logs"
+            - "--auto-iam-authn"
             - "--port=3306"
             - "pw-asm-gke-prj-1:us-central1:sample-app-mysql-db-8cf33039"
           securityContext:

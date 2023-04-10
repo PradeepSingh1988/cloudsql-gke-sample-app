@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: workload-identity-test
+  namespace: "sql-admin-ns"
+spec:
+  serviceAccountName: "sql-admin"
+  containers:
+    - image: us-central1-docker.pkg.dev/pw-asm-gke-prj-1/sample/gcloud-sdk:latest
+      name: workload-identity-test
+      command: ["sleep", "infinity"]
+  
+    - name: cloud-sql-proxy
+      image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
+      args:
+        - "--private-ip"
+        - "--structured-logs"
+        #- "--auto-iam-authn"
+        - "--port=3306"
+        - "pw-asm-gke-prj-1:us-central1:sample-app-mysql-db-8cf33039"
+  nodeSelector:
+    iam.gke.io/gke-metadata-server-enabled: "true"
