@@ -1,15 +1,26 @@
+# Debug Workload Identity
+# $kubectl exec -it workload-identity-test --namespace sample-ns -- /bin/bash
+# curl -H "Metadata-Flavor: Google" http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/email
+# This should list the GCP SA
+
+# Install MySQl Client and test connectivity (Needs Internet connectivity)
+# apt-get install -y default-mysql-client
+# The following commands should be run inside after logging into workload identity test pod:
+# mysql -u sample-app  --host 127.0.0.1 --port 3306
+# MySQL [(none)]>
+
 apiVersion: v1
 kind: Pod
 metadata:
   name: workload-identity-test
-  namespace: "sql-admin-ns"
+  namespace: "sample-app"
 spec:
-  serviceAccountName: "sql-admin"
+  serviceAccountName: "sample-app"
   containers:
     - image: us-central1-docker.pkg.dev/pw-asm-gke-prj-1/sample/gcloud-sdk:latest
       name: workload-identity-test
       command: ["sleep", "infinity"]
-  
+
     - name: cloud-sql-proxy
       image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
       args:
