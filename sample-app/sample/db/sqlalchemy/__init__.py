@@ -19,15 +19,17 @@ class SqlEngineFacade:
 
     def _get_uri(self):
         settings = get_settings()
-        if settings.db_host and settings.db_port and settings.db_name:
+        if settings.db_host and settings.db_port and settings.db_name and settings.db_user:
             db_name = settings.db_name
             db_host = settings.db_host
             db_port = settings.db_port
+            db_user = settings.db_user
             DATABASE_URL = engine.url.URL.create(
                 drivername="mysql+pymysql",
                 host=db_host,
                 port=db_port,
                 database=db_name,
+                db_user=db_user
         )
         else:
             DATABASE_URL = get_settings().sqlite_url

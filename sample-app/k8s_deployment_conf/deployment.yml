@@ -16,7 +16,7 @@ spec:
       serviceAccountName: sample-app
       containers:
         - name: sample-app
-          image: us-central1-docker.pkg.dev/pw-asm-gke-prj-1/samplesample-app:latest
+          image: us-central1-docker.pkg.dev/pw-asm-gke-prj-1/sample/sample-app:latest
           env:
             - name: DB_HOST
               value: "127.0.0.1"
@@ -24,6 +24,8 @@ spec:
               value: "3306"
             - name: DB_NAME
               value: "sample-app"
+            - name: DB_USER
+              value: "sample-app@pw-asm-gke-prj-1.iam.gserviceaccount.com"
         - name: cloud-sql-proxy
           image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
           command:

@@ -9,6 +9,7 @@ class SampleSettings(BaseSettings):
     db_name: str = None
     db_host: str = "127.0.0.1"
     db_port: int = 5432
+    db_user: str = None
 
     # log_level
     log_level: str = "DEBUG"
