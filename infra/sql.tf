@@ -49,9 +49,6 @@ module "mysql-db" {
 ## Service account based authentication + DB login can be used by creating users
 ## and then granting them permissions on table using GRANT statement
 ## Please check https://cloud.google.com/sql/docs/mysql/add-manage-iam-users#grant-db-privileges
-
-
-
 resource "google_sql_user" "users" {
   name     = module.my-app-workload-identity.gcp_service_account_email
   instance = module.mysql-db.instance_name
@@ -60,9 +57,10 @@ resource "google_sql_user" "users" {
 }
 
 
-resource "google_sql_user" "admins" {
-  name     = module.sql-admin-workload-identity.gcp_service_account_email
-  instance = module.mysql-db.instance_name
-  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
-  project  = var.project_id
-}
+# we can create one SA for admins and use that in CI/CD pipeline etc
+# resource "google_sql_user" "admins" {
+#   name     = module.sql-admin-workload-identity.gcp_service_account_email
+#   instance = module.mysql-db.instance_name
+#   type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+#   project  = var.project_id
+# }
