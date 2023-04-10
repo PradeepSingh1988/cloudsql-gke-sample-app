@@ -29,7 +29,7 @@ class SqlEngineFacade:
                 host=db_host,
                 port=db_port,
                 database=db_name,
-                db_user=db_user
+                user=db_user
         )
         else:
             DATABASE_URL = get_settings().sqlite_url

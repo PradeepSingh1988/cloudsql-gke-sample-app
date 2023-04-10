@@ -28,10 +28,11 @@ spec:
               value: "sample-app@pw-asm-gke-prj-1.iam.gserviceaccount.com"
         - name: cloud-sql-proxy
           image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.1.0
-          command:
+          args:
             - "--private-ip"
-            - "-log_debug_stdout"
-            - "-instances=pw-asm-gke-prj-1:us-central1:sample-app-mysql-db-8cf33039=tcp:3306"
+            - "--structured-logs"
+            - "--port=3306"
+            - "pw-asm-gke-prj-1:us-central1:sample-app-mysql-db-8cf33039"
           securityContext:
             runAsNonRoot: true
           resources:
